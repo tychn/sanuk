@@ -1,5 +1,79 @@
 document.addEventListener("DOMContentLoaded", () => {
   const motionOk = window.matchMedia("(prefers-reduced-motion: no-preference)").matches;
+
+  initLights(motionOk);
+  initScroll(motionOk);
+  initReserve();
+  initNavToggle();
+});
+
+function initNavToggle() {
+  const nav = document.querySelector(".site-nav");
+  const toggle = document.querySelector(".nav-toggle");
+
+  if (!nav || !toggle) {
+    return;
+  }
+
+  const setOpen = (open) => {
+    nav.classList.toggle("is-open", open);
+    toggle.setAttribute("aria-expanded", open ? "true" : "false");
+  };
+
+  toggle.addEventListener("click", (event) => {
+    event.stopPropagation();
+    setOpen(!nav.classList.contains("is-open"));
+  });
+
+  nav.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => setOpen(false));
+  });
+
+  document.addEventListener("click", (event) => {
+    if (!nav.contains(event.target)) {
+      setOpen(false);
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      setOpen(false);
+    }
+  });
+}
+
+function initReserve() {
+  const reserve = document.querySelector(".reserve");
+  const toggle = document.querySelector(".reserve__toggle");
+
+  if (!reserve || !toggle) {
+    return;
+  }
+
+  const setOpen = (open) => {
+    reserve.classList.toggle("is-open", open);
+    toggle.setAttribute("aria-expanded", open ? "true" : "false");
+  };
+
+  toggle.addEventListener("click", (event) => {
+    event.stopPropagation();
+    setOpen(!reserve.classList.contains("is-open"));
+  });
+
+  document.addEventListener("click", (event) => {
+    if (!reserve.contains(event.target)) {
+      setOpen(false);
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      setOpen(false);
+    }
+  });
+}
+
+function initLights(motionOk) {
   const orbs = [...document.querySelectorAll(".orb")];
 
   if (!motionOk || orbs.length === 0) {
@@ -82,4 +156,155 @@ document.addEventListener("DOMContentLoaded", () => {
 
   window.addEventListener("pointermove", updatePointer, { passive: true });
   requestAnimationFrame(tick);
-});
+}
+
+function initScroll(motionOk) {
+  if (typeof gsap === "undefined" || typeof ScrollTrigger === "undefined") {
+    return;
+  }
+
+  gsap.registerPlugin(ScrollTrigger);
+  if (typeof ScrollToPlugin !== "undefined") {
+    gsap.registerPlugin(ScrollToPlugin);
+  }
+
+  const intro = document.querySelector(".intro");
+  const home = document.querySelector(".panel--home");
+  const philosophie = document.querySelector("#philosophie");
+  const ingredients = document.querySelector(".philosophie-bg");
+  const navLinks = [...document.querySelectorAll(".site-nav a")];
+
+  const setCurrent = (id) => {
+    navLinks.forEach((link) => {
+      const isCurrent = link.getAttribute("href") === `#${id}`;
+      if (isCurrent) {
+        link.setAttribute("aria-current", "page");
+      } else {
+        link.removeAttribute("aria-current");
+      }
+    });
+  };
+
+  const setTriangleReveal = (progress) => {
+    if (!ingredients) {
+      return;
+    }
+    const t = Math.max(0, Math.min(1, progress));
+    const inset = (1 - t) * 100;
+    ingredients.style.clipPath = `polygon(100% ${inset}%, 100% 100%, ${inset}% 100%)`;
+  };
+
+  let ingredientsIn = 0;
+  let ingredientsOut = 0;
+  const applyIngredients = () => {
+    setTriangleReveal(ingredientsIn * (1 - ingredientsOut));
+  };
+
+  if (motionOk && intro && home && philosophie) {
+    const philosophiePage = philosophie.querySelector(".page");
+    gsap.set(philosophie, { y: "100vh" });
+    if (philosophiePage) {
+      gsap.set(philosophiePage, { autoAlpha: 0 });
+    }
+
+    const introFade = gsap.timeline({
+      scrollTrigger: {
+        id: "intro-fade",
+        trigger: intro,
+        start: "top top",
+        end: "+=120%",
+        pin: true,
+        pinSpacing: true,
+        invalidateOnRefresh: true,
+        scrub: 0.85,
+        onUpdate: (self) => {
+          home.style.pointerEvents = self.progress > 0.32 ? "none" : "auto";
+          philosophie.style.pointerEvents = self.progress > 0.32 ? "auto" : "none";
+          setCurrent(self.progress < 0.35 ? "home" : "philosophie");
+          ingredientsIn = self.progress;
+          applyIngredients();
+        },
+      },
+    });
+
+    introFade
+      .to(home, { autoAlpha: 0, ease: "power2.in", duration: 0.55 }, 0)
+      .to(".orb", { autoAlpha: 0, ease: "power2.in", duration: 0.55 }, 0)
+      .to(philosophie, { y: 0, ease: "none", duration: 1 }, 0)
+      .to(philosophiePage, { autoAlpha: 1, ease: "none", duration: 1 }, 0);
+
+    if (ingredients) {
+      ScrollTrigger.create({
+        trigger: "#menue",
+        start: "top 85%",
+        end: "top 35%",
+        scrub: 0.85,
+        onUpdate: (self) => {
+          ingredientsOut = self.progress;
+          applyIngredients();
+        },
+      });
+    }
+
+    const refreshLayout = () => ScrollTrigger.refresh();
+    window.addEventListener("load", refreshLayout);
+    if (document.fonts?.ready) {
+      document.fonts.ready.then(refreshLayout);
+    }
+  } else if (ingredients && philosophie) {
+    ScrollTrigger.create({
+      trigger: philosophie,
+      start: "top 80%",
+      end: "bottom 20%",
+      onEnter: () => setTriangleReveal(1),
+      onLeave: () => setTriangleReveal(0),
+      onEnterBack: () => setTriangleReveal(1),
+      onLeaveBack: () => setTriangleReveal(0),
+    });
+  }
+
+  document.querySelectorAll(".pages .panel--page").forEach((panel) => {
+    ScrollTrigger.create({
+      trigger: panel,
+      start: "top 55%",
+      end: "bottom 55%",
+      onEnter: () => setCurrent(panel.id),
+      onEnterBack: () => setCurrent(panel.id),
+    });
+  });
+
+  navLinks.forEach((link) => {
+    link.addEventListener("click", (event) => {
+      const href = link.getAttribute("href") || "";
+      if (!href.startsWith("#")) {
+        return;
+      }
+
+      event.preventDefault();
+      const id = href.slice(1);
+
+      if (id === "home") {
+        gsap.to(window, { duration: 1.05, scrollTo: 0, ease: "power2.inOut" });
+        return;
+      }
+
+      if (id === "philosophie") {
+        const introFade = ScrollTrigger.getById("intro-fade");
+        const y = introFade ? introFade.end : philosophie?.offsetTop || 0;
+        gsap.to(window, { duration: 1.2, scrollTo: y, ease: "power2.inOut" });
+        return;
+      }
+
+      const target = document.getElementById(id);
+      if (!target) {
+        return;
+      }
+
+      gsap.to(window, {
+        duration: 1.15,
+        scrollTo: { y: target, offsetY: 0 },
+        ease: "power2.inOut",
+      });
+    });
+  });
+}
