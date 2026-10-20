@@ -1,3 +1,5 @@
+let setLightsActive = () => {};
+
 document.addEventListener("DOMContentLoaded", () => {
   const motionOk = window.matchMedia("(prefers-reduced-motion: no-preference)").matches;
 
@@ -203,12 +205,41 @@ function initLights(motionOk) {
 
       light.el.style.transform = `translate(-50%, -50%) translate(${x * width * 0.5}px, ${y * height * 0.5}px) rotate(${rotate}deg) scale(${scaleX}, ${scaleY})`;
     });
-
-    requestAnimationFrame(tick);
   };
 
   window.addEventListener("pointermove", updatePointer, { passive: true });
-  requestAnimationFrame(tick);
+
+  let scrollLights = true;
+  let lightsRaf = 0;
+  const lightsRunning = () => scrollLights && !document.hidden;
+
+  const run = (now) => {
+    if (!lightsRunning()) {
+      lightsRaf = 0;
+      return;
+    }
+    tick(now);
+    lightsRaf = requestAnimationFrame(run);
+  };
+
+  const syncLights = () => {
+    const active = lightsRunning();
+    orbs.forEach((orb) => {
+      orb.style.visibility = active ? "visible" : "hidden";
+    });
+    if (active && !lightsRaf) {
+      lightsRaf = requestAnimationFrame(run);
+    }
+  };
+
+  setLightsActive = (active) => {
+    scrollLights = active;
+    syncLights();
+  };
+
+  document.addEventListener("visibilitychange", syncLights);
+
+  lightsRaf = requestAnimationFrame(run);
 }
 
 function initScroll(motionOk) {
@@ -220,6 +251,7 @@ function initScroll(motionOk) {
   if (typeof ScrollToPlugin !== "undefined") {
     gsap.registerPlugin(ScrollToPlugin);
   }
+  gsap.ticker.lagSmoothing(0);
 
   const intro = document.querySelector(".intro");
   const home = document.querySelector(".panel--home");
@@ -229,7 +261,12 @@ function initScroll(motionOk) {
   const menueBg = document.querySelector(".menue-bg");
   const navLinks = [...document.querySelectorAll(".site-nav a")];
 
+  let currentSection = "home";
   const setCurrent = (id) => {
+    if (currentSection === id) {
+      return;
+    }
+    currentSection = id;
     navLinks.forEach((link) => {
       const isCurrent = link.getAttribute("href") === `#${id}`;
       if (isCurrent) {
@@ -245,8 +282,7 @@ function initScroll(motionOk) {
       return;
     }
     const t = Math.max(0, Math.min(1, progress));
-    const inset = (1 - t) * 100;
-    ingredients.style.clipPath = `polygon(100% ${inset}%, 100% 100%, ${inset}% 100%)`;
+    ingredients.style.transform = `scale(${t})`;
   };
 
   let ingredientsIn = 0;
@@ -260,8 +296,7 @@ function initScroll(motionOk) {
       return;
     }
     const t = Math.max(0, Math.min(1, progress));
-    const size = t * 100;
-    menueBg.style.clipPath = `polygon(0 0, ${size}% 0, 0 ${size}%)`;
+    menueBg.style.transform = `scale(${t})`;
   };
 
   let menueIn = 0;
@@ -285,12 +320,21 @@ function initScroll(motionOk) {
         end: "+=120%",
         pin: true,
         pinSpacing: true,
+        anticipatePin: 1,
         invalidateOnRefresh: true,
-        scrub: 0.85,
+        scrub: 0.45,
         onUpdate: (self) => {
-          home.style.pointerEvents = self.progress > 0.32 ? "none" : "auto";
-          philosophie.style.pointerEvents = self.progress > 0.32 ? "auto" : "none";
+          const pastHome = self.progress > 0.32;
+          const homeEvents = pastHome ? "none" : "auto";
+          const philoEvents = pastHome ? "auto" : "none";
+          if (home.style.pointerEvents !== homeEvents) {
+            home.style.pointerEvents = homeEvents;
+          }
+          if (philosophie.style.pointerEvents !== philoEvents) {
+            philosophie.style.pointerEvents = philoEvents;
+          }
           setCurrent(self.progress < 0.35 ? "home" : "philosophie");
+          setLightsActive(self.progress < 0.55);
           ingredientsIn = self.progress;
           applyIngredients();
         },
@@ -308,7 +352,7 @@ function initScroll(motionOk) {
         trigger: "#menue",
         start: "top 85%",
         end: "top 35%",
-        scrub: 0.85,
+        scrub: 0.45,
         onUpdate: (self) => {
           ingredientsOut = self.progress;
           applyIngredients();
@@ -329,8 +373,9 @@ function initScroll(motionOk) {
             end: "+=120%",
             pin: true,
             pinSpacing: true,
+            anticipatePin: 1,
             invalidateOnRefresh: true,
-            scrub: 0.85,
+            scrub: 0.45,
             onUpdate: (self) => {
               menueIn = self.progress;
               applyMenue();
@@ -344,7 +389,7 @@ function initScroll(motionOk) {
         trigger: "#experience",
         start: "top 85%",
         end: "top 35%",
-        scrub: 0.85,
+        scrub: 0.45,
         onUpdate: (self) => {
           menueOut = self.progress;
           applyMenue();

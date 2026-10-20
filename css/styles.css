@@ -15,6 +15,7 @@ html,
 body {
   min-height: 100%;
   background-color: var(--bg);
+  overflow-anchor: none;
 }
 
 html {
@@ -27,7 +28,7 @@ body {
   background: radial-gradient(ellipse 80% 70% at 50% 40%, rgba(255, 255, 255, 0.07), transparent 62%);
   color: var(--fg);
   font-family: "Outfit", system-ui, sans-serif;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 body::after {
@@ -172,7 +173,10 @@ body::after {
   height: 60vh;
   pointer-events: none;
   overflow: hidden;
-  clip-path: polygon(100% 100%, 100% 100%, 100% 100%);
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  transform-origin: 100% 100%;
+  transform: scale(0);
+  will-change: transform;
 }
 
 .philosophie-bg img {
@@ -192,7 +196,10 @@ body::after {
   height: 60vh;
   pointer-events: none;
   overflow: hidden;
-  clip-path: polygon(0 0, 0 0, 0 0);
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+  transform-origin: 0 0;
+  transform: scale(0);
+  will-change: transform;
 }
 
 .menue-bg img {
@@ -661,6 +668,12 @@ body::after {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .philosophie-bg,
+  .menue-bg {
+    transform: none;
+    will-change: auto;
+  }
+
   .intro {
     height: auto;
   }
