@@ -173,10 +173,7 @@ body::after {
   height: 60vh;
   pointer-events: none;
   overflow: hidden;
-  clip-path: polygon(100% 0, 100% 100%, 0 100%);
-  transform-origin: 100% 100%;
-  transform: scale(0);
-  will-change: transform;
+  clip-path: polygon(100% 100%, 100% 100%, 100% 100%);
 }
 
 .philosophie-bg img {
@@ -196,10 +193,7 @@ body::after {
   height: 60vh;
   pointer-events: none;
   overflow: hidden;
-  clip-path: polygon(0 0, 100% 0, 0 100%);
-  transform-origin: 0 0;
-  transform: scale(0);
-  will-change: transform;
+  clip-path: polygon(0 0, 0 0, 0 0);
 }
 
 .menue-bg img {
@@ -668,12 +662,6 @@ body::after {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .philosophie-bg,
-  .menue-bg {
-    transform: none;
-    will-change: auto;
-  }
-
   .intro {
     height: auto;
   }

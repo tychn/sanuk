@@ -282,7 +282,8 @@ function initScroll(motionOk) {
       return;
     }
     const t = Math.max(0, Math.min(1, progress));
-    ingredients.style.transform = `scale(${t})`;
+    const inset = (1 - t) * 100;
+    ingredients.style.clipPath = `polygon(100% ${inset}%, 100% 100%, ${inset}% 100%)`;
   };
 
   let ingredientsIn = 0;
@@ -296,7 +297,8 @@ function initScroll(motionOk) {
       return;
     }
     const t = Math.max(0, Math.min(1, progress));
-    menueBg.style.transform = `scale(${t})`;
+    const size = t * 100;
+    menueBg.style.clipPath = `polygon(0 0, ${size}% 0, 0 ${size}%)`;
   };
 
   let menueIn = 0;
