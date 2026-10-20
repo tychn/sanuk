@@ -5,7 +5,60 @@ document.addEventListener("DOMContentLoaded", () => {
   initScroll(motionOk);
   initReserve();
   initNavToggle();
+  initTeamMore();
 });
+
+function initTeamMore() {
+  const members = [...document.querySelectorAll(".team-member")];
+
+  if (members.length === 0) {
+    return;
+  }
+
+  const updateToggle = (member) => {
+    const toggle = member.querySelector(".team-member__more");
+    const text = member.querySelector(".team-member__text");
+
+    if (!toggle || !text) {
+      return;
+    }
+
+    if (member.classList.contains("is-open")) {
+      toggle.hidden = false;
+      return;
+    }
+
+    toggle.hidden = text.scrollHeight <= text.clientHeight + 1;
+  };
+
+  members.forEach((member) => {
+    const toggle = member.querySelector(".team-member__more");
+    const text = member.querySelector(".team-member__text");
+
+    if (!toggle || !text) {
+      return;
+    }
+
+    const setOpen = (open) => {
+      member.classList.toggle("is-open", open);
+      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+      toggle.textContent = open ? "weniger" : "mehr lesen";
+      updateToggle(member);
+    };
+
+    toggle.addEventListener("click", () => {
+      setOpen(!member.classList.contains("is-open"));
+    });
+  });
+
+  const refresh = () => members.forEach(updateToggle);
+  window.addEventListener("resize", refresh);
+  window.addEventListener("load", refresh);
+  if (document.fonts?.ready) {
+    document.fonts.ready.then(refresh);
+  }
+  refresh();
+}
 
 function initNavToggle() {
   const nav = document.querySelector(".site-nav");
@@ -171,7 +224,9 @@ function initScroll(motionOk) {
   const intro = document.querySelector(".intro");
   const home = document.querySelector(".panel--home");
   const philosophie = document.querySelector("#philosophie");
+  const menue = document.querySelector("#menue");
   const ingredients = document.querySelector(".philosophie-bg");
+  const menueBg = document.querySelector(".menue-bg");
   const navLinks = [...document.querySelectorAll(".site-nav a")];
 
   const setCurrent = (id) => {
@@ -198,6 +253,21 @@ function initScroll(motionOk) {
   let ingredientsOut = 0;
   const applyIngredients = () => {
     setTriangleReveal(ingredientsIn * (1 - ingredientsOut));
+  };
+
+  const setMenueTriangle = (progress) => {
+    if (!menueBg) {
+      return;
+    }
+    const t = Math.max(0, Math.min(1, progress));
+    const size = t * 100;
+    menueBg.style.clipPath = `polygon(0 0, ${size}% 0, 0 ${size}%)`;
+  };
+
+  let menueIn = 0;
+  let menueOut = 0;
+  const applyMenue = () => {
+    setMenueTriangle(menueIn * (1 - menueOut));
   };
 
   if (motionOk && intro && home && philosophie) {
@@ -246,21 +316,71 @@ function initScroll(motionOk) {
       });
     }
 
+    const menuePage = menue?.querySelector(".page");
+    if (menue && menuePage) {
+      gsap.set(menuePage, { y: "100vh", autoAlpha: 0 });
+
+      gsap
+        .timeline({
+          scrollTrigger: {
+            id: "menue-fade",
+            trigger: menue,
+            start: "top top",
+            end: "+=120%",
+            pin: true,
+            pinSpacing: true,
+            invalidateOnRefresh: true,
+            scrub: 0.85,
+            onUpdate: (self) => {
+              menueIn = self.progress;
+              applyMenue();
+            },
+          },
+        })
+        .to(menuePage, { y: 0, ease: "none", duration: 1 }, 0)
+        .to(menuePage, { autoAlpha: 1, ease: "none", duration: 1 }, 0);
+
+      ScrollTrigger.create({
+        trigger: "#experience",
+        start: "top 85%",
+        end: "top 35%",
+        scrub: 0.85,
+        onUpdate: (self) => {
+          menueOut = self.progress;
+          applyMenue();
+        },
+      });
+    }
+
     const refreshLayout = () => ScrollTrigger.refresh();
     window.addEventListener("load", refreshLayout);
     if (document.fonts?.ready) {
       document.fonts.ready.then(refreshLayout);
     }
-  } else if (ingredients && philosophie) {
-    ScrollTrigger.create({
-      trigger: philosophie,
-      start: "top 80%",
-      end: "bottom 20%",
-      onEnter: () => setTriangleReveal(1),
-      onLeave: () => setTriangleReveal(0),
-      onEnterBack: () => setTriangleReveal(1),
-      onLeaveBack: () => setTriangleReveal(0),
-    });
+  } else {
+    if (ingredients && philosophie) {
+      ScrollTrigger.create({
+        trigger: philosophie,
+        start: "top 80%",
+        end: "bottom 20%",
+        onEnter: () => setTriangleReveal(1),
+        onLeave: () => setTriangleReveal(0),
+        onEnterBack: () => setTriangleReveal(1),
+        onLeaveBack: () => setTriangleReveal(0),
+      });
+    }
+
+    if (menueBg && menue) {
+      ScrollTrigger.create({
+        trigger: menue,
+        start: "top 80%",
+        end: "bottom 20%",
+        onEnter: () => setMenueTriangle(1),
+        onLeave: () => setMenueTriangle(0),
+        onEnterBack: () => setMenueTriangle(1),
+        onLeaveBack: () => setMenueTriangle(0),
+      });
+    }
   }
 
   document.querySelectorAll(".pages .panel--page").forEach((panel) => {
@@ -291,6 +411,13 @@ function initScroll(motionOk) {
       if (id === "philosophie") {
         const introFade = ScrollTrigger.getById("intro-fade");
         const y = introFade ? introFade.end : philosophie?.offsetTop || 0;
+        gsap.to(window, { duration: 1.2, scrollTo: y, ease: "power2.inOut" });
+        return;
+      }
+
+      if (id === "menue") {
+        const menueFade = ScrollTrigger.getById("menue-fade");
+        const y = menueFade ? menueFade.end : menue?.offsetTop || 0;
         gsap.to(window, { duration: 1.2, scrollTo: y, ease: "power2.inOut" });
         return;
       }

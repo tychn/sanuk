@@ -146,6 +146,23 @@ body::after {
   justify-content: center;
 }
 
+#menue {
+  padding-top: 4.5rem;
+  padding-bottom: 5rem;
+}
+
+#menue .page__text p + p {
+  margin-top: 0.85em;
+}
+
+#menue .page-cta {
+  margin: 0.35rem 0 1.75rem;
+}
+
+#reservierung {
+  position: relative;
+}
+
 .philosophie-bg {
   position: fixed;
   right: 0;
@@ -164,6 +181,26 @@ body::after {
   height: 100%;
   object-fit: cover;
   object-position: right -100px;
+}
+
+.menue-bg {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 1;
+  width: 60vh;
+  height: 60vh;
+  pointer-events: none;
+  overflow: hidden;
+  clip-path: polygon(0 0, 0 0, 0 0);
+}
+
+.menue-bg img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: left bottom;
 }
 
 .page {
@@ -197,6 +234,10 @@ body::after {
   text-align: left;
 }
 
+.page__text p + p {
+  margin-top: 1.15em;
+}
+
 .reserve {
   position: relative;
   display: flex;
@@ -205,6 +246,7 @@ body::after {
   margin-top: 2rem;
 }
 
+.page-cta,
 .reserve__toggle,
 .reserve__option {
   appearance: none;
@@ -225,6 +267,12 @@ body::after {
   cursor: pointer;
 }
 
+.page-cta {
+  margin-top: 2.25rem;
+}
+
+.page-cta:hover,
+.page-cta:focus-visible,
 .reserve__toggle:hover,
 .reserve__toggle:focus-visible,
 .reserve.is-open .reserve__toggle,
@@ -308,6 +356,42 @@ body::after {
   font-size: 0.95rem;
   font-weight: 300;
   line-height: 1.65;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+}
+
+.team-member.is-open .team-member__text {
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
+  overflow: visible;
+}
+
+.team-member__more {
+  appearance: none;
+  display: inline-block;
+  margin-top: 0.7rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--fg);
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 300;
+  letter-spacing: 0.16em;
+  text-transform: lowercase;
+  cursor: pointer;
+}
+
+.team-member__more:hover,
+.team-member__more:focus-visible {
+  color: var(--muted);
+}
+
+.team-member__more[hidden] {
+  display: none;
 }
 
 @media (max-width: 900px) {
@@ -437,6 +521,29 @@ body::after {
   color: var(--fg);
 }
 
+.site-legal {
+  position: absolute;
+  right: 3.5rem;
+  bottom: 3.75rem;
+  z-index: 4;
+  display: flex;
+  gap: 1.35rem;
+}
+
+.site-legal a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 300;
+  letter-spacing: 0.08em;
+}
+
+.site-legal a:hover,
+.site-legal a:focus-visible {
+  color: var(--fg);
+  text-decoration: underline;
+}
+
 @media (max-width: 1024px) {
   .site-nav {
     left: 1.5rem;
@@ -491,6 +598,11 @@ body::after {
   .site-nav.is-open li:nth-child(4) { transition-delay: 0.16s; }
   .site-nav.is-open li:nth-child(5) { transition-delay: 0.2s; }
   .site-nav.is-open li:nth-child(6) { transition-delay: 0.24s; }
+
+  .site-legal {
+    right: 1.5rem;
+    bottom: 1.6rem;
+  }
 }
 
 .rule {
@@ -542,6 +654,10 @@ body::after {
   .intro #philosophie .page {
     opacity: 0;
   }
+
+  #menue .page {
+    opacity: 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -571,4 +687,211 @@ body::after {
   .site-nav li {
     transition: none;
   }
+}
+
+.legal-doc {
+  position: relative;
+  z-index: 2;
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 4.5rem 2rem 6rem;
+}
+
+.legal-doc__home {
+  display: inline-block;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 300;
+  letter-spacing: 0.18em;
+  text-transform: lowercase;
+  margin-bottom: 2.5rem;
+}
+
+.legal-doc__home:hover,
+.legal-doc__home:focus-visible {
+  color: var(--fg);
+}
+
+.legal-doc h1 {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(2.4rem, 6vw, 4.2rem);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  margin-bottom: 2rem;
+}
+
+.legal-doc h2 {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 1.35rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  margin: 2rem 0 0.85rem;
+}
+
+.legal-doc p,
+.legal-doc address,
+.legal-doc ul {
+  color: var(--muted);
+  font-size: 1.05rem;
+  font-weight: 300;
+  font-style: normal;
+  line-height: 1.7;
+}
+
+.legal-doc ul {
+  padding-left: 1.2rem;
+  margin: 0.6rem 0 1rem;
+}
+
+.legal-doc li {
+  margin-bottom: 0.35rem;
+}
+
+.legal-doc a {
+  color: var(--fg);
+}
+
+.legal-doc__links {
+  display: flex;
+  gap: 1.35rem;
+  margin-top: 3rem;
+}
+
+.legal-doc__links a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 300;
+  letter-spacing: 0.08em;
+}
+
+.legal-doc__links a:hover,
+.legal-doc__links a:focus-visible {
+  color: var(--fg);
+  text-decoration: underline;
+}
+
+.menu-doc {
+  position: relative;
+  z-index: 2;
+  max-width: 28rem;
+  margin: 0 auto;
+  padding: 4.5rem 2rem 6rem;
+  text-align: center;
+}
+
+.menu-doc__back {
+  margin: 0 auto 2.5rem;
+}
+
+.menu-doc__header {
+  margin-bottom: 3.25rem;
+}
+
+.menu-doc__title {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(2.6rem, 8vw, 4.6rem);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  line-height: 0.9;
+  text-transform: uppercase;
+  margin-bottom: 1.15rem;
+}
+
+.menu-doc__subtitle {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(1.35rem, 3vw, 1.7rem);
+  font-weight: 500;
+  font-style: italic;
+  color: var(--muted);
+  margin-bottom: 0.7rem;
+}
+
+.menu-doc__lede {
+  color: var(--muted);
+  font-size: 0.95rem;
+  font-weight: 300;
+  letter-spacing: 0.08em;
+  line-height: 1.6;
+}
+
+.menu-courses {
+  list-style: none;
+}
+
+.menu-course {
+  padding: 0 0 2.35rem;
+}
+
+.menu-course:not(:last-child) {
+  margin-bottom: 0.4rem;
+}
+
+.menu-course:not(:last-child)::after {
+  content: "◈";
+  display: block;
+  margin-top: 2.35rem;
+  color: var(--line);
+  font-size: 0.7rem;
+  letter-spacing: 0;
+}
+
+.menu-course__stage {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 300;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  margin-bottom: 0.7rem;
+}
+
+.menu-course__name {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(1.55rem, 3.4vw, 2rem);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1.15;
+  margin-bottom: 0.35rem;
+}
+
+.menu-course__thai {
+  font-family: "Noto Serif Thai", "Noto Serif", serif;
+  color: var(--muted);
+  font-size: 1.05rem;
+  font-weight: 500;
+  margin-bottom: 0.7rem;
+}
+
+.menu-course__notes {
+  color: var(--muted);
+  font-size: 0.95rem;
+  font-weight: 300;
+  line-height: 1.65;
+}
+
+.menu-doc__footer {
+  margin-top: 1.5rem;
+  padding-top: 0.5rem;
+}
+
+.menu-doc__closing {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 0.7rem;
+}
+
+.menu-doc__thanks {
+  color: var(--muted);
+  font-size: 1.05rem;
+  font-weight: 300;
+  font-style: italic;
+}
+
+.menu-doc__footer .page-cta {
+  margin-top: 2rem;
 }
